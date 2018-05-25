@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <style>
+        body{
+            background-color:rgba(68, 206, 158, 0.63)  ;
+        }
+        #myPage .panel {
+            width: 400px;	float: left;	margin-left: 20px; margin-right: 20px;
+            margin-bottom: 10px; margin-top: 10px;
+        }
+        #myPage .panel-heading {
+            background-color: #00FF6A;		color: #030303; 
+        }		  
+        #myPage .panel-body {
+            background-color: #4FD155;		color: black; 
+        }
+        #myPage .panel-footer {
+            background-color: #6CC477;		color: black; 
+        }
+        .mytext{
+            font-size: 18pt;
+            margin-left: 40px;
+        }
+        .jumbotron{
+            position: relative;
+            text-align: center;
+            margin-left: -70px;
+            margin-right: -70px;
+            background-image: url("https://ih1.redbubble.net/image.188655190.3732/flat,800x800,070,f.u2.jpg");
+            background-size: 750px;
+            color:#FFFFFF;
+            font-family: Impact, Charcoal, sans-serif;
+        }
+        .titles{
+            background-color:#23A354;
+            color:white;
+            text-align:center;
+        }
+        .logo{
+            width:90%;
+        }
+        .item img{
+            width:1000px;
+        }  
+        h1{
+            font-family: Impact, Charcoal, sans-serif;
+            text-align: center;
+        }       
+    </style>
+
+    <script type="text/template" id="Template">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Question {{qNum}}:  {{info.question}} </div>
+            <div class="panel-body"> A. {{info.choice1}} </div>
+            <div class="panel-body"> B. {{info.choice2}} </div>
+            <div class="panel-body"> C. {{info.choice3}} </div>
+            <div class="panel-body"> D. {{info.choice4}} </div>			
+            <div class="panel-footer">
+                <input type="text" id="{{qKey}}" placeholder="Answer Letter">
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var data; //global variable
+
+		function getData(){       	
+			$.getJSON("https://questions-d35cc.firebaseio.com/.json", function(result){
+				data = result;
+                displayQuestions();	
+			});	
+		}
+	
+		// DISPLAY QUESTIONS
+		function displayQuestions(){
+			var build ="";
+			var template = document.getElementById("Template").innerHTML;  
+			var qNumber =0; // Question number
+		
+			for(var key in data){
+				qNumber++;
+				quesJSON ={
+					"info": data[key], 
+					"qKey": key,
+					"qNum": qNumber
+				}
+				build += Mustache.render(template, quesJSON);     
+			}
+			document.getElementById("quiz").innerHTML = build;							
+		}                    
+		
+		// CHECK ANSWERS AND CALCULATE SCORE
+		function checkAnswers(){
+			var score = 0;
+			var count = 0;
+			for(var key in data){
+                var correctAns = data[key].answer;
+				var userAns = document.getElementById(key).value;				
+                count++;
+				if (userAns.toUpperCase() == correctAns){
+					score++;
+				}
+                var grd = (score/count * 100).toFixed(0);		
+			}
+			document.getElementById("score").innerHTML = "<h1>You got " + score + " out of " + count+" questions right!<br><br> You got a: <br> "+ grd + "%</b></h1>"; 
+		}
+	</script>
+</head>
+<body onload="getData()" id="myPage">
+        <div class="container">
+
+                <div class="jumbotron">
+                        <h1> Quiz</h1>
+                        <p>Multiple Choice Quiz</p> 
+                </div>
+                    
+                <nav class="navbar navbar-inverse">
+                    <div class="container-fluid">
+                    <ul class="nav navbar-nav">
+                      <li class="active"><a href="index.html">Home</a></li>
+                      <li><a href="Page 1.html">Mammals</a></li>
+                      <li><a href="Page 2.html">Avian</a></li>
+                      
+                      <li><a href="Page 3.html">Fish</a></li>
+                      
+                      <li><a href="Page 4.html">Amphibians & Reptiles</a></li>
+                      <li><a href="Quiz.html">Take our quiz!</a></li>
+                    </ul>
+                    </div>
+                  </nav>
+                <h1>Hit score quiz once you're done entering your answers!</h1>
+                
+                <div id="quiz"></div>
+                    <button onclick="checkAnswers()" type="button" class="btn btn-success btn-lg">Score My Quiz!</button>
+                <div id="score"></div>
+
+        </div>
+</body>
+</html>
